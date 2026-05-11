@@ -1,25 +1,14 @@
-# Quick Start Guide - Job Portal Backend API
+# Quick Start Guide
 
-## 🚀 Get Started in 5 Minutes
+## Setup (5 minutes)
 
-### Prerequisites
-- Python 3.10+
-- PostgreSQL (or use SQLite for development)
-- Git
-
-### Step 1: Clone & Setup
-
+### Clone & Install
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd job-portal-backend
-
-# Create and activate virtual environment
+git clone https://github.com/JAY-822005/job-portal-backend-
+cd job-portal-backend-
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements_production.txt
+source venv/Scripts/activate
+pip install -r requirements.txt
 ```
 
 ### Step 2: Configure Environment

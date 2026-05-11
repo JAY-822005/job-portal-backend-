@@ -1,80 +1,166 @@
 # Job Portal Backend API
 
-A production-level Job Portal Backend API built using Django, Django REST Framework, PostgreSQL, JWT Authentication, Celery, Redis, and scalable backend architecture principles.
+A production-level Job Portal Backend API built with Django REST Framework, featuring JWT authentication, role-based access control, and complete hiring workflow management.
 
-Unlike basic CRUD-based job portal projects, this system is designed to simulate how real-world recruitment platforms work in production environments.
+## Features
 
-This project supports complete hiring workflows between Job Seekers, Recruiters, and Admins — from job posting to application tracking and interview scheduling.
+- **User Authentication**: JWT-based auth with role-based access (Candidate/Recruiter/Admin)
+- **Job Management**: Post, search, and manage job listings
+- **Application Tracking**: Complete application lifecycle management
+- **Interview Scheduling**: Schedule and manage interviews
+- **Resume Management**: Upload and manage candidate resumes
+- **Background Tasks**: Celery + Redis for async operations
+- **API Architecture**: Production-ready REST API design
+- **Deployment Ready**: Docker, PostgreSQL, Nginx, Gunicorn setup
 
-It focuses heavily on clean architecture, modular app design, role-based permissions, security, scalability, and maintainable backend engineering practices that companies actually expect from backend developers.
+## Tech Stack
 
+- **Backend**: Django 6.0.4, Django REST Framework
+- **Database**: SQLite (dev) / PostgreSQL (prod)
+- **Cache & Task Queue**: Redis, Celery
+- **Authentication**: JWT (django-rest-framework-simplejwt)
+- **Containerization**: Docker & Docker Compose
+- **Web Server**: Nginx, Gunicorn
 
+## Project Structure
 
-## Why This Project Is Different
+```
+├── accounts/          # User authentication & profiles
+├── jobs/              # Job posting management
+├── applications/      # Job applications
+├── interviews/        # Interview scheduling
+├── config/            # Django configuration
+├── templates/         # HTML templates
+├── static/            # CSS, JavaScript
+├── docker-compose.yml # Container orchestration
+└── requirements.txt   # Python dependencies
+```
 
-Most beginner job portal projects only focus on basic CRUD operations like creating jobs and applying for them.
+## Setup
 
-This project goes far beyond that by implementing:
+### Local Development
 
-* Production-level Django project structure
-* JWT Authentication with secure refresh token flow
-* Role-based access control (Applicant / Recruiter / Admin)
-* Resume upload and profile management
-* Full application lifecycle tracking
-* Recruiter dashboard workflows
-* Interview scheduling system
-* Background task handling using Celery + Redis
-* PostgreSQL optimized relational database design
-* API documentation ready for frontend/mobile integration
-* Deployment-ready environment setup
-* Industry-standard coding practices
+1. Clone the repository
+```bash
+git clone https://github.com/JAY-822005/job-portal-backend-
+cd job-portal-backend-
+```
 
-This makes the project closer to a real SaaS recruitment platform rather than a simple portfolio CRUD project.
+2. Create virtual environment
+```bash
+python -m venv venv
+source venv/Scripts/activate  # Windows
+```
 
+3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
 
+4. Run migrations
+```bash
+python manage.py migrate
+```
 
-## Business Value
+5. Start development server
+```bash
+python manage.py runserver
+```
 
-Recruitment systems are used by:
+### Docker Setup
 
-* Startups
-* HR Agencies
-* Corporate Hiring Teams
-* Internal Company Hiring Portals
-* Remote Hiring Platforms
+```bash
+docker-compose up --build
+```
 
-This project solves real hiring workflow problems by helping companies:
+Access the API at `http://localhost:8000`
 
-* manage job postings efficiently
-* track candidates professionally
-* reduce manual HR operations
-* streamline recruiter-applicant communication
-* improve hiring pipeline visibility
+## API Endpoints
 
-It reflects how backend systems are built in actual software companies.
+### Authentication
+- `POST /api/auth/register/` - Register new user
+- `POST /api/auth/login/` - Login user
+- `POST /api/auth/refresh/` - Refresh JWT token
 
+### Jobs
+- `GET /api/jobs/` - List all jobs
+- `POST /api/jobs/` - Create job (Recruiter)
+- `GET /api/jobs/{id}/` - Job details
+- `PUT /api/jobs/{id}/` - Update job
+- `DELETE /api/jobs/{id}/` - Delete job
 
+### Applications
+- `GET /api/applications/` - List applications
+- `POST /api/applications/` - Apply for job
+- `GET /api/applications/{id}/` - Application details
+- `PUT /api/applications/{id}/` - Update application status
 
-## Perfect For Backend Developer Portfolio
+### Interviews
+- `GET /api/interviews/` - List interviews
+- `POST /api/interviews/` - Schedule interview
+- `PUT /api/interviews/{id}/` - Update interview
 
-This project demonstrates strong skills in:
+## Environment Variables
 
-* Django
-* Django REST Framework
-* PostgreSQL
-* Authentication & Authorization
-* Background Tasks
-* API Architecture
-* Database Design
-* Scalable Backend Systems
-* Production-Level Development
+Create a `.env` file in the project root:
 
-It is specifically designed to stand out in backend developer interviews for Python + Django + REST API roles.
+```env
+DEBUG=True
+SECRET_KEY=your-secret-key-here
+DATABASE_URL=sqlite:///db.sqlite3
+```
 
+For production, use environment-specific settings in `config/` directory.
 
+## Testing
 
-## Built For Real Backend Engineering
+Run tests with pytest:
+```bash
+pytest
+```
 
-This is not just a tutorial project.
+## Database Models
 
-It is built as a backend engineer’s portfolio project — focused on solving real problems using professional development practices.
+- **User**: Custom user with roles (candidate, recruiter, admin)
+- **CandidateProfile**: Candidate details, skills, experience, resume
+- **RecruiterProfile**: Company information, recruiter details
+- **Job**: Job listings with details, salary, location
+- **JobApplication**: Application tracking with status
+- **Interview**: Interview scheduling and feedback
+
+## Key Features
+
+### Role-Based Access Control
+Different permissions for Candidates, Recruiters, and Admins
+- Candidates can browse jobs and apply
+- Recruiters can post jobs and manage applications
+- Admins have full system access
+
+### JWT Authentication
+- Access token with refresh token rotation
+- Secure token management in headers
+- Automatic token refresh on expiration
+
+### Async Task Processing
+- Email notifications via Celery
+- Background job processing
+- Scheduled tasks with Celery Beat
+
+## Deployment
+
+See Docker setup above for containerized deployment.
+
+For production deployment:
+1. Use `settings_prod.py` configuration
+2. Set `DEBUG=False`
+3. Configure PostgreSQL database
+4. Use environment variables for secrets
+5. Set up Redis for caching and task queue
+
+## License
+
+MIT
+
+## Author
+
+[Your Name]
