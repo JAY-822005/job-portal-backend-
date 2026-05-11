@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Job Portal - Find Your Dream Job{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <span>💼</span> JobPortal
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="/jobs" class="navbar-link">Browse Jobs</a></li>
+                <li><a href="/dashboard" class="navbar-link">Dashboard</a></li>
+                <li><a href="/about" class="navbar-link">About</a></li>
+                <li><a href="/contact" class="navbar-link">Contact</a></li>
+                <li id="auth-links">
+                    <a href="/login" class="btn btn-secondary btn-sm">Login</a>
+                    <a href="/register" class="btn btn-primary btn-sm">Sign Up</a>
+                </li>
+                <li id="user-menu" class="hidden">
+                    <div class="flex gap-2 align-items-center">
+                        <span id="username"></span>
+                        <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% if messages %}
+        <div class="container mt-2">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>JobPortal</h3>
+                <p>Connecting talented professionals with their dream jobs.</p>
+            </div>
+            <div class="footer-section">
+                <h3>For Job Seekers</h3>
+                <ul>
+                    <li><a href="/jobs">Browse Jobs</a></li>
+                    <li><a href="/companies">Browse Companies</a></li>
+                    <li><a href="/salary-guide">Salary Guide</a></li>
+                    <li><a href="/career-advice">Career Advice</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>For Employers</h3>
+                <ul>
+                    <li><a href="/post-job">Post a Job</a></li>
+                    <li><a href="/pricing">Pricing</a></li>
+                    <li><a href="/recruiting-tips">Recruiting Tips</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 JobPortal. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

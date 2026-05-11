@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section style="padding: 2rem 0;">
+        <h1>Welcome to Your Dashboard</h1>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 1rem; margin: 2rem 0; border-bottom: 1px solid var(--border-color);">
+            <button class="tab-btn active" onclick="switchTab('candidate')" style="padding: 1rem; border: none; background: none; cursor: pointer; border-bottom: 2px solid var(--primary-color); color: var(--primary-color); font-weight: 600;">
+                For Candidates
+            </button>
+            <button class="tab-btn" onclick="switchTab('recruiter')" style="padding: 1rem; border: none; background: none; cursor: pointer; color: var(--text-light);">
+                For Recruiters
+            </button>
+        </div>
+
+        <!-- Candidate Dashboard -->
+        <div id="candidate-dashboard" class="tab-content">
+            <div class="grid grid-3 gap-4 mb-4">
+                <div class="card">
+                    <h4 class="text-muted">Applications</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">
+                        <span id="applicationCount">0</span>
+                    </div>
+                    <small class="text-muted">Active Applications</small>
+                </div>
+                <div class="card">
+                    <h4 class="text-muted">Interviews Scheduled</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);">
+                        <span id="interviewCount">0</span>
+                    </div>
+                    <small class="text-muted">Upcoming Interviews</small>
+                </div>
+                <div class="card">
+                    <h4 class="text-muted">Profile Strength</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--warning-color);">
+                        <span id="profileStrength">0</span>%
+                    </div>
+                    <small class="text-muted">Complete Your Profile</small>
+                </div>
+            </div>
+
+            <div class="grid grid-2 gap-4">
+                <!-- Recent Applications -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Applications</h3>
+                    </div>
+                    <div class="card-body" id="recentApplications">
+                        <p class="text-muted text-center py-4">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Actions</h3>
+                    </div>
+                    <div class="card-body flex-col gap-2">
+                        <a href="/jobs" class="btn btn-primary btn-block">Browse Jobs</a>
+                        <a href="/profile" class="btn btn-secondary btn-block">Update Profile</a>
+                        <a href="/resume" class="btn btn-secondary btn-block">Upload Resume</a>
+                        <a href="/applications" class="btn btn-secondary btn-block">View All Applications</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recruiter Dashboard -->
+        <div id="recruiter-dashboard" class="tab-content hidden">
+            <div class="grid grid-3 gap-4 mb-4">
+                <div class="card">
+                    <h4 class="text-muted">Active Jobs</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">
+                        <span id="activeJobsCount">0</span>
+                    </div>
+                    <small class="text-muted">Job Postings</small>
+                </div>
+                <div class="card">
+                    <h4 class="text-muted">Total Applications</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--info-color);">
+                        <span id="totalApplicationsCount">0</span>
+                    </div>
+                    <small class="text-muted">From All Jobs</small>
+                </div>
+                <div class="card">
+                    <h4 class="text-muted">Interviews</h4>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);">
+                        <span id="recruiterInterviewCount">0</span>
+                    </div>
+                    <small class="text-muted">This Month</small>
+                </div>
+            </div>
+
+            <div class="grid grid-2 gap-4">
+                <!-- Active Job Posts -->
+                <div class="card">
+                    <div class="card-header flex-between">
+                        <h3 class="card-title">Active Jobs</h3>
+                        <a href="/post-job" class="btn btn-primary btn-sm">Post New Job</a>
+                    </div>
+                    <div class="card-body" id="activeJobs">
+                        <p class="text-muted text-center py-4">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Actions</h3>
+                    </div>
+                    <div class="card-body flex-col gap-2">
+                        <a href="/post-job" class="btn btn-primary btn-block">Post a Job</a>
+                        <a href="/applications" class="btn btn-secondary btn-block">View Applications</a>
+                        <a href="/interviews" class="btn btn-secondary btn-block">Manage Interviews</a>
+                        <a href="/company-profile" class="btn btn-secondary btn-block">Company Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(tab + '-dashboard').classList.remove('hidden');
+    
+    document.querySelectorAll('.tab-btn').forEach(el => {
+        el.style.borderBottom = 'none';
+        el.style.color = 'var(--text-light)';
+    });
+    event.target.style.borderBottom = '2px solid var(--primary-color)';
+    event.target.style.color = 'var(--primary-color)';
+}
+
+async function loadDashboard() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+
+    try {
+        // Get user info
+        const userResponse = await fetch('/api/auth/user/', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const user = await userResponse.json();
+
+        if (user.role === 'candidate') {
+            // Load candidate data
+            const appResponse = await fetch('/api/applications/', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const applications = await appResponse.json();
+            
+            document.getElementById('applicationCount').textContent = applications.count || 0;
+            
+            // Load recent applications
+            const recentApps = applications.results.slice(0, 5);
+            document.getElementById('recentApplications').innerHTML = recentApps.map(app => `
+                <div style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
+                    <p style="font-weight: 600; margin: 0 0 0.5rem 0;">${app.job_title}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="badge badge-primary">${app.status}</span>
+                        <small class="text-muted">${new Date(app.applied_at).toLocaleDateString()}</small>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-muted text-center py-4">No applications yet</p>';
+        } else if (user.role === 'recruiter') {
+            // Load recruiter data
+            const jobsResponse = await fetch('/api/jobs/', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const jobs = await jobsResponse.json();
+            
+            document.getElementById('activeJobsCount').textContent = jobs.count || 0;
+            
+            // Load active jobs
+            const activeJobs = jobs.results.slice(0, 5);
+            document.getElementById('activeJobs').innerHTML = activeJobs.map(job => `
+                <div style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
+                    <p style="font-weight: 600; margin: 0 0 0.5rem 0;">${job.title}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="badge badge-primary">${job.job_type}</span>
+                        <small class="text-muted">${job.views_count} views</small>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-muted text-center py-4">No active jobs</p>';
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+{% endblock %}

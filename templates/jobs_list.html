@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Jobs - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; padding: 4rem 0; margin: -2rem 0 0 0; text-align: center;">
+        <div class="container py-5">
+            <h1 style="color: white; margin-bottom: 1rem;">Find Your Dream Job</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.25rem; margin-bottom: 2rem;">
+                Explore thousands of job opportunities with all the information you need.
+            </p>
+            
+            <div class="flex gap-2" style="max-width: 500px; margin: 0 auto;">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="form-control" 
+                    placeholder="Job title, keywords..."
+                >
+                <button class="btn btn-primary" onclick="searchJobs()">Search</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section style="margin: 2rem 0; padding: 2rem; background: var(--light-bg); border-radius: 0.75rem;">
+        <div class="grid grid-4 gap-2">
+            <div class="form-group">
+                <label for="jobType" class="form-label">Job Type</label>
+                <select id="jobType" class="form-control" onchange="applyFilters()">
+                    <option value="">All Types</option>
+                    <option value="full-time">Full Time</option>
+                    <option value="part-time">Part Time</option>
+                    <option value="contract">Contract</option>
+                    <option value="internship">Internship</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="location" class="form-label">Location</label>
+                <input 
+                    type="text" 
+                    id="location" 
+                    class="form-control" 
+                    placeholder="City, Country"
+                    onchange="applyFilters()"
+                >
+            </div>
+            <div class="form-group">
+                <label for="experience" class="form-label">Experience Level</label>
+                <select id="experience" class="form-control" onchange="applyFilters()">
+                    <option value="">All Levels</option>
+                    <option value="entry">Entry Level</option>
+                    <option value="junior">Junior</option>
+                    <option value="mid">Mid Level</option>
+                    <option value="senior">Senior</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="salary" class="form-label">Salary Range</label>
+                <select id="salary" class="form-control" onchange="applyFilters()">
+                    <option value="">Any</option>
+                    <option value="0-50000">$0 - $50k</option>
+                    <option value="50000-100000">$50k - $100k</option>
+                    <option value="100000-150000">$100k - $150k</option>
+                    <option value="150000">$150k+</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Jobs List -->
+    <section>
+        <div id="jobsList" class="grid gap-3">
+            <!-- Jobs will be loaded here via JavaScript -->
+            <div class="text-center py-5">
+                <div class="loading" style="margin: 0 auto;"></div>
+                <p class="text-muted mt-2">Loading jobs...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pagination -->
+    <div class="flex-center gap-2 mt-4">
+        <button class="btn btn-secondary" onclick="previousPage()">&larr; Previous</button>
+        <span id="pageInfo"></span>
+        <button class="btn btn-secondary" onclick="nextPage()">Next &rarr;</button>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+
+async function loadJobs() {
+    const searchQuery = document.getElementById('searchInput').value;
+    const jobType = document.getElementById('jobType').value;
+    const location = document.getElementById('location').value;
+    const experience = document.getElementById('experience').value;
+
+    try {
+        const params = new URLSearchParams({
+            page: currentPage,
+            search: searchQuery,
+            job_type: jobType,
+            location: location,
+            experience_level: experience,
+        });
+
+        const response = await fetch(`/api/jobs/?${params}`);
+        const data = await response.json();
+
+        const jobsList = document.getElementById('jobsList');
+        
+        if (data.results.length === 0) {
+            jobsList.innerHTML = '<div class="text-center py-5"><p class="text-muted">No jobs found</p></div>';
+            return;
+        }
+
+        jobsList.innerHTML = data.results.map(job => `
+            <div class="card">
+                <div class="flex-between mb-2">
+                    <div>
+                        <h3>${job.title}</h3>
+                        <p class="text-muted">${job.company_name}</p>
+                    </div>
+                    <span class="badge badge-primary">${job.job_type}</span>
+                </div>
+                
+                <div class="flex gap-2 mb-2">
+                    <span class="badge badge-info">📍 ${job.location}</span>
+                    ${job.is_remote ? '<span class="badge badge-info">🌐 Remote</span>' : ''}
+                    <span class="badge badge-success">${job.experience_level}</span>
+                </div>
+
+                <p class="text-muted mb-2">
+                    💰 $${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()} ${job.salary_currency}
+                </p>
+
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    ${job.skills_list.slice(0, 3).map(skill => 
+                        `<span class="badge badge-primary">${skill}</span>`
+                    ).join('')}
+                    ${job.skills_list.length > 3 ? `<span class="badge badge-primary">+${job.skills_list.length - 3} more</span>` : ''}
+                </div>
+
+                <div class="flex-between">
+                    <small class="text-muted">📅 ${new Date(job.created_at).toLocaleDateString()}</small>
+                    <a href="/jobs/${job.id}/" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('pageInfo').textContent = `Page ${currentPage}`;
+    } catch (error) {
+        console.error('Error loading jobs:', error);
+    }
+}
+
+function searchJobs() {
+    currentPage = 1;
+    loadJobs();
+}
+
+function applyFilters() {
+    currentPage = 1;
+    loadJobs();
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadJobs();
+    }
+}
+
+function nextPage() {
+    currentPage++;
+    loadJobs();
+}
+
+// Load jobs on page load
+document.addEventListener('DOMContentLoaded', loadJobs);
+</script>
+{% endblock %}

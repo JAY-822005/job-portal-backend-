@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Register - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 600px; margin: 3rem auto;">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Create Your Account</h2>
+                <p class="text-muted">Join thousands of professionals</p>
+            </div>
+            <div class="card-body">
+                <form id="registerForm" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="role" class="form-label">I am a:</label>
+                        <select id="role" name="role" class="form-control" required>
+                            <option value="">Select your role</option>
+                            <option value="candidate">Job Seeker</option>
+                            <option value="recruiter">Recruiter/Employer</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input 
+                                type="text" 
+                                id="first_name" 
+                                name="first_name" 
+                                class="form-control" 
+                                placeholder="John"
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input 
+                                type="text" 
+                                id="last_name" 
+                                name="last_name" 
+                                class="form-control" 
+                                placeholder="Doe"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-control" 
+                            placeholder="your@email.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username" class="form-label">Username</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            class="form-control" 
+                            placeholder="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone Number (Optional)</label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            class="form-control" 
+                            placeholder="+1 (555) 000-0000"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-control" 
+                            placeholder="••••••••"
+                            required
+                        >
+                        <small class="form-text">
+                            Password must be at least 8 characters with uppercase, lowercase, numbers, and symbols.
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password2" class="form-label">Confirm Password</label>
+                        <input 
+                            type="password" 
+                            id="password2" 
+                            name="password2" 
+                            class="form-control" 
+                            placeholder="••••••••"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="terms" required>
+                            I agree to the Terms of Service and Privacy Policy
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        Already have an account? 
+                        <a href="/login" class="text-primary">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+
+    try {
+        const response = await fetch('/api/auth/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+            alert('Account created successfully! Please login.');
+            window.location.href = '/login';
+        } else {
+            const errors = await response.json();
+            alert('Error: ' + JSON.stringify(errors));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    }
+});
+</script>
+{% endblock %}
