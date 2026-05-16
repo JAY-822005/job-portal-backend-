@@ -161,6 +161,3 @@ For production deployment:
 
 MIT
 
-## Author
-
-[Your Name]
